@@ -1,0 +1,84 @@
+/* ==========================================================================
+   SVO STUDIO - Base Stylesheet
+   ========================================================================== */
+
+/* CSS Reset básico */
+*,
+*::before,
+*::after {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* Variables de color y tipografía */
+:root {
+    /* Colores principales */
+    --color-white: #F6F5F2;
+    --color-beige: #E8E2D8;
+    --color-stone: #CFCBC4;
+
+    /* Colores de contraste */
+    --color-black: #1A1A1A;
+    --color-gray: #5F5F5F;
+
+    /* Tipografías */
+    --font-heading: 'Satoshi', sans-serif;
+    --font-body: 'Inter', sans-serif;
+
+    /* Espaciado */
+    --spacing-xs: 0.5rem;
+    --spacing-sm: 1rem;
+    --spacing-md: 2rem;
+    --spacing-lg: 4rem;
+    --spacing-xl: 8rem;
+}
+
+/* Base */
+html {
+    font-size: 16px;
+    scroll-behavior: smooth;
+}
+
+body {
+    font-family: var(--font-body);
+    font-weight: 400;
+    line-height: 1.6;
+    color: var(--color-black);
+    background-color: var(--color-white);
+}
+
+/* Tipografía base */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    font-family: var(--font-heading);
+    font-weight: 500;
+    line-height: 1.2;
+    letter-spacing: 0.02em;
+}
+
+a {
+    color: inherit;
+    text-decoration: none;
+}
+
+img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+}
+
+ul {
+    list-style: none;
+}
+
+button {
+    font-family: inherit;
+    cursor: pointer;
+    border: none;
+    background: none;
+}
