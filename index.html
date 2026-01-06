@@ -1,68 +1,137 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="SVO STUDIO - Premium streetwear essentials. Designed for everyday.">
-    
+
     <title>SVO STUDIO</title>
-    
+
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=Satoshi:wght@500;700&display=swap" rel="stylesheet">
-    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+
+    <!-- Swiper CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css">
+
     <!-- Styles -->
     <link rel="stylesheet" href="css/style.css">
 </head>
+
 <body>
-    
+
     <!-- Header -->
     <header class="header">
-        <nav class="nav">
-            <a href="index.html" class="logo">SVO STUDIO</a>
-            
-            <ul class="nav-menu">
-                <li><a href="index.html">Home</a></li>
-                <li><a href="shop.html">Shop</a></li>
-                <li><a href="about.html">About</a></li>
-                <li><a href="contact.html">Contact</a></li>
+        <nav class="nav container">
+            <a href="index.html" class="logo">
+                <img src="img/logo.png" alt="SVO STUDIO">
+            </a>
+
+            <ul class="nav-menu" id="nav-menu">
+                <li class="nav-item"><a href="index.html" class="nav-link active">Home</a></li>
+                <li class="nav-item"><a href="shop.html" class="nav-link">Shop</a></li>
+                <li class="nav-item"><a href="about.html" class="nav-link">About</a></li>
+                <li class="nav-item"><a href="contact.html" class="nav-link">Contact</a></li>
             </ul>
-            
-            <button class="nav-toggle" aria-label="Toggle menu">
-                <span></span>
-                <span></span>
-                <span></span>
+
+            <button class="nav-toggle" id="nav-toggle" aria-label="Toggle menu">
+                <span class="hamburger-line"></span>
+                <span class="hamburger-line"></span>
+                <span class="hamburger-line"></span>
             </button>
         </nav>
     </header>
-    
+
     <!-- Main Content -->
     <main class="main">
-        
+
         <!-- Hero Section -->
-        <section class="hero">
-            <h1>SVO STUDIO</h1>
-            <p>Designed for everyday.</p>
-        </section>
-        
-        <!-- Products Grid -->
-        <section class="products">
-            <h2>Essentials</h2>
-            <div class="products-grid" id="products-grid">
-                <!-- Products will be loaded via API -->
+        <section class="hero" style="background-image: url('img/hero-bg.png');">
+            <div class="hero-overlay"></div>
+            <div class="hero-content">
+                <h1 class="hero-title">SVO STUDIO</h1>
+                <p class="hero-subtitle">Designed for everyday.</p>
+                <a href="shop.html" class="hero-cta">Explore Collection</a>
             </div>
         </section>
-        
+
+        <!-- Featured Products Carousel -->
+        <section class="products section">
+            <div class="container">
+                <div class="section-header">
+                    <h2 class="section-title">Essentials</h2>
+                    <p class="section-subtitle">No season. No noise.</p>
+                </div>
+
+                <!-- Swiper Carousel -->
+                <div class="swiper products-swiper">
+                    <div class="swiper-wrapper" id="products-carousel">
+                        <!-- Products will be loaded via API -->
+                    </div>
+                    <!-- Navigation -->
+                    <div class="swiper-button-prev"></div>
+                    <div class="swiper-button-next"></div>
+                </div>
+
+                <div class="products-cta">
+                    <a href="shop.html" class="btn btn-outline">View All Products</a>
+                </div>
+            </div>
+        </section>
+
+        <!-- Brand Statement -->
+        <section class="statement section">
+            <div class="container">
+                <blockquote class="statement-text">
+                    "Daily uniform. Streetwear essentials for the modern minimalist."
+                </blockquote>
+            </div>
+        </section>
+
     </main>
-    
+
     <!-- Footer -->
     <footer class="footer">
-        <p>&copy; 2025 SVO STUDIO. All rights reserved.</p>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <a href="index.html" class="footer-logo">
+                        <img src="img/logo.png" alt="SVO STUDIO">
+                    </a>
+                    <p class="footer-tagline">Premium streetwear essentials.</p>
+                </div>
+
+                <nav class="footer-nav">
+                    <div class="footer-col">
+                        <h4 class="footer-heading">Shop</h4>
+                        <ul class="footer-links">
+                            <li><a href="shop.html">All Products</a></li>
+                            <li><a href="shop.html?category=men">Men</a></li>
+                            <li><a href="shop.html?category=women">Women</a></li>
+                        </ul>
+                    </div>
+                    <div class="footer-col">
+                        <h4 class="footer-heading">Info</h4>
+                        <ul class="footer-links">
+                            <li><a href="about.html">About Us</a></li>
+                            <li><a href="contact.html">Contact</a></li>
+                        </ul>
+                    </div>
+                </nav>
+            </div>
+
+            <div class="footer-bottom">
+                <p>&copy; 2025 SVO STUDIO. All rights reserved.</p>
+            </div>
+        </div>
     </footer>
-    
+
     <!-- Scripts -->
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
     <script src="js/main.js"></script>
 </body>
+
 </html>
