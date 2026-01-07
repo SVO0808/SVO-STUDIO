@@ -252,7 +252,6 @@ $(document).ready(function () {
         });
 
         // Add to Cart
-        // Add to Cart
         $('.btn-black').off('click').on('click', function () {
             const product = $(this).data('product');
             const size = $('.size-btn.active').text();
@@ -271,6 +270,73 @@ $(document).ready(function () {
                 btn.text(originalText);
                 btn.css('background-color', '');
             }, 2000);
+        });
+
+        // Image Zoom Logic (Lens Effect)
+        const $imgContainer = $('.main-image');
+        const $img = $('#pd-image');
+
+        // Create Lens Element
+        let $lens = $('.zoom-lens');
+        if ($lens.length === 0) {
+            $lens = $('<div class="zoom-lens"></div>');
+            $imgContainer.append($lens);
+        }
+
+        const ZOOM_LEVEL = 2.5;
+
+        $imgContainer.on('mouseenter', function () {
+            // Set lens background to image src
+            $lens.css('background-image', `url(${$img.attr('src')})`);
+            $lens.addClass('active');
+        });
+
+        $imgContainer.on('mousemove', function (e) {
+            // Container info
+            const { left, top, width, height } = this.getBoundingClientRect();
+
+            // Cursor pos relative to container
+            let x = e.clientX - left;
+            let y = e.clientY - top;
+
+            // Lens dimensions
+            const lensW = $lens.width();
+            const lensH = $lens.height();
+
+            // Center lens on cursor
+            let lensLeft = x - (lensW / 2);
+            let lensTop = y - (lensH / 2);
+
+            // Positioning text/element
+            $lens.css({
+                left: lensLeft + 'px',
+                top: lensTop + 'px'
+            });
+
+            // Calculate background position
+            // We want to show the part of the image under the cursor.
+            // But wait, the image inside is 'contain' and might be smaller than container.
+            // For a perfect effect with 'object-fit: contain', it's complex to map exactly unless we know the rendered image dimensions.
+            // Simplified approach: Assume image fills container logic for zoom or just map container coordinates to background %
+
+            // Background Position Logic: moving the background in opposite direction
+            // bgPosX = - (x * ZOOM_LEVEL - lensW / 2)
+            // But we rarely fill the container. 
+            // Better approach for 'contain' images: just verify the visual. 
+            // If the image has whitespace, the lens will show whitespace.
+
+            // Percentage based usually works best for 'contain' if aligned center
+            const xPct = (x / width) * 100;
+            const yPct = (y / height) * 100;
+
+            $lens.css({
+                'background-size': `${width * ZOOM_LEVEL}px ${height * ZOOM_LEVEL}px`,
+                'background-position': `${xPct}% ${yPct}%`
+            });
+        });
+
+        $imgContainer.on('mouseleave', function () {
+            $lens.removeClass('active');
         });
     }
 
