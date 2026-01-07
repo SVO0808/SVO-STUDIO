@@ -684,6 +684,9 @@ $(document).ready(function () {
         // Dropdown Logic
         // ======================================================================
         initDropdown: function () {
+            // Don't initialize dropdown on cart page
+            if ($('body').hasClass('page-cart')) return;
+
             // Inject HTML if not exists
             if ($('#cart-dropdown').length === 0) {
                 $('.nav.container').append(`
