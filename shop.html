@@ -5,7 +5,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="SVO STUDIO - Shop Premium Streetwear.">
-
     <title>Shop - SVO STUDIO</title>
 
     <!-- Fonts -->
@@ -17,7 +16,7 @@
     <link rel="stylesheet" href="css/style.css">
 </head>
 
-<body>
+<body class="page-shop">
 
     <!-- Header -->
     <header class="header">
@@ -43,11 +42,74 @@
 
     <!-- Main Content -->
     <main class="main">
-        <div class="container section">
-            <h1 class="section-title">Shop</h1>
-            <p>Collections coming soon...</p>
-            <!-- TODO: Collections Top + Products Grid with Filters -->
-        </div>
+
+        <!-- Collections Grid (Top Section) -->
+        <section class="collections section">
+            <div class="container">
+                <h1 class="page-title">Collections</h1>
+                <div class="collections-grid">
+                    <div class="collection-card">
+                        <div class="collection-image">
+                            <img src="img/collection-1.png" alt="FW25 Collection">
+                            <div class="collection-overlay"></div>
+                        </div>
+                        <div class="collection-content">
+                            <h2 class="collection-title">FW25 Essentials</h2>
+                            <a href="#shop-all" class="btn-text">View Collection</a>
+                        </div>
+                    </div>
+                    <div class="collection-card">
+                        <div class="collection-image">
+                            <img src="img/collection-2.png" alt="Core Basics">
+                            <div class="collection-overlay"></div>
+                        </div>
+                        <div class="collection-content">
+                            <h2 class="collection-title">Core Basics</h2>
+                            <a href="#shop-all" class="btn-text">View Collection</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Shop All (Bottom Section) -->
+        <section id="shop-all" class="shop section">
+            <div class="container">
+                <div class="shop-layout">
+
+                    <!-- Filters Sidebar -->
+                    <aside class="shop-sidebar">
+                        <div class="filter-group">
+                            <h3 class="filter-title">Category</h3>
+                            <ul class="filter-list">
+                                <li><button class="filter-btn active" data-category="all">All</button></li>
+                                <li><button class="filter-btn" data-category="men's clothing">Men</button></li>
+                                <li><button class="filter-btn" data-category="women's clothing">Women</button>
+                                </li>
+                            </ul>
+                        </div>
+
+                        <div class="filter-group">
+                            <h3 class="filter-title">Sort By</h3>
+                            <ul class="filter-list">
+                                <li><button class="filter-btn" data-sort="newest">Newest</button></li>
+                                <li><button class="filter-btn" data-sort="price-asc">Price: Low to High</button></li>
+                                <li><button class="filter-btn" data-sort="price-desc">Price: High to Low</button></li>
+                            </ul>
+                        </div>
+                    </aside>
+
+                    <!-- Products Grid -->
+                    <div class="shop-content">
+                        <div class="products-grid shop-grid" id="shop-products-grid">
+                            <!-- Products loaded via JS -->
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
     </main>
 
     <!-- Footer -->

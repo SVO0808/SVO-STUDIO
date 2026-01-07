@@ -56,6 +56,8 @@ $(document).ready(function () {
     let productsSwiper = null;
 
     function initSwiper() {
+        if ($('.products-swiper').length === 0) return;
+
         productsSwiper = new Swiper('.products-swiper', {
             slidesPerView: 'auto',
             spaceBetween: 30,
@@ -75,63 +77,156 @@ $(document).ready(function () {
     }
 
     // ==========================================================================
-    // Fetch Products from API
+    // Fetch Products Logic
     // ==========================================================================
+    let allProducts = [];
+
     function fetchProducts() {
-        const $carousel = $('#products-carousel');
+        // Determine if we are on Shop page or Home page
+        const isShopPage = $('body').hasClass('page-shop');
+        const $targetContainer = isShopPage ? $('#shop-products-grid') : $('#products-carousel');
 
-        // Show loading state
-        $carousel.html('<div class="swiper-slide loading"></div>');
+        // Show loading
+        $targetContainer.html('<div class="loading"></div>');
 
-        // Fetch men's clothing products
+        // Fetch ALL products to handle client-side filtering on shop page
+        // or just to have data ready
         $.ajax({
-            url: `${API_BASE_URL}/products/category/men's clothing`,
+            url: `${API_BASE_URL}/products`,
             method: 'GET',
             dataType: 'json',
             success: function (products) {
-                // Products: 1-backpack, 2-tshirt, 3-jacket, 4-casual shirt
-                // All are basic streetwear essentials for men
-                renderProducts(products);
+                // Filter only clothing
+                allProducts = products.filter(p =>
+                    p.category === "men's clothing" ||
+                    p.category === "women's clothing"
+                );
+
+                if (isShopPage) {
+                    renderShopGrid(allProducts);
+                    initShopFilters();
+                } else {
+                    // Home page: Render only men's clothing in carousel
+                    const mensProducts = allProducts.filter(p => p.category === "men's clothing");
+                    renderCarousel(mensProducts);
+                }
             },
             error: function (error) {
-                console.error('Error fetching products:', error);
-                $carousel.html('<p class="error">Failed to load products. Please try again.</p>');
+                console.error('Error fetching:', error);
+                $targetContainer.html('<p class="error">Failed to load products.</p>');
             }
         });
     }
 
     // ==========================================================================
-    // Render Products
+    // Render Functions
     // ==========================================================================
-    function renderProducts(products) {
+    function renderCarousel(products) {
         const $carousel = $('#products-carousel');
         $carousel.empty();
 
-        products.forEach(function (product) {
-            const productCard = `
+        products.forEach(product => {
+            $carousel.append(`
                 <div class="swiper-slide">
-                    <a href="product.html?id=${product.id}" class="product-card">
-                        <div class="product-image">
-                            <img src="${product.image}" alt="${product.title}" loading="lazy">
-                        </div>
-                        <div class="product-info">
-                            <h3 class="product-title">${truncateText(product.title, 40)}</h3>
-                            <p class="product-price">$${product.price.toFixed(2)}</p>
-                        </div>
-                    </a>
+                    ${createProductCard(product)}
                 </div>
-            `;
-            $carousel.append(productCard);
+            `);
         });
 
-        // Initialize Swiper after products are loaded
         initSwiper();
+    }
+
+    function renderShopGrid(products) {
+        const $grid = $('#shop-products-grid');
+        $grid.empty();
+
+        if (products.length === 0) {
+            $grid.html('<p class="no-results">No products found.</p>');
+            return;
+        }
+
+        products.forEach(product => {
+            $grid.append(createProductCard(product));
+        });
+    }
+
+    function createProductCard(product) {
+        return `
+            <a href="product.html?id=${product.id}" class="product-card" data-id="${product.id}">
+                <div class="product-image">
+                    <img src="${product.image}" alt="${product.title}" loading="lazy">
+                </div>
+                <div class="product-info">
+                    <h3 class="product-title">${truncateText(product.title, 40)}</h3>
+                    <p class="product-price">$${product.price.toFixed(2)}</p>
+                </div>
+            </a>
+        `;
+    }
+
+    // ==========================================================================
+    // Shop Filters & Sort
+    // ==========================================================================
+    function initShopFilters() {
+        // Category Filter
+        $('.filter-btn[data-category]').on('click', function () {
+            $('.filter-btn[data-category]').removeClass('active');
+            $(this).addClass('active');
+
+            const category = $(this).data('category');
+            applyFilters(category, $('.filter-btn[data-sort].active').data('sort'));
+        });
+
+        // Sort Filter
+        $('.filter-btn[data-sort]').on('click', function () {
+            $('.filter-btn[data-sort]').removeClass('active');
+            $(this).addClass('active');
+
+            const sortType = $(this).data('sort');
+            applyFilters($('.filter-btn[data-category].active').data('category'), sortType);
+        });
+
+        // Check URL params for initial category
+        const urlParams = new URLSearchParams(window.location.search);
+        const categoryParam = urlParams.get('category');
+        if (categoryParam) {
+            let catName = 'all';
+            if (categoryParam === 'men') catName = "men's clothing";
+            if (categoryParam === 'women') catName = "women's clothing";
+
+            $(`.filter-btn[data-category="${catName}"]`).trigger('click');
+        } else {
+            // Default active if filter elements exist
+            if ($('.filter-btn[data-category="all"]').length > 0) {
+                $('.filter-btn[data-category="all"]').addClass('active');
+                $('.filter-btn[data-sort="newest"]').addClass('active');
+            }
+        }
+    }
+
+    function applyFilters(category, sortType) {
+        let filtered = [...allProducts];
+
+        // 1. Filter
+        if (category && category !== 'all') {
+            filtered = filtered.filter(p => p.category === category);
+        }
+
+        // 2. Sort
+        if (sortType === 'price-asc') {
+            filtered.sort((a, b) => a.price - b.price);
+        } else if (sortType === 'price-desc') {
+            filtered.sort((a, b) => b.price - a.price);
+        }
+
+        renderShopGrid(filtered);
     }
 
     // ==========================================================================
     // Utility Functions
     // ==========================================================================
     function truncateText(text, maxLength) {
+        if (!text) return '';
         if (text.length <= maxLength) return text;
         return text.substring(0, maxLength).trim() + '...';
     }
