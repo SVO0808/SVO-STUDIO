@@ -160,17 +160,36 @@
                             <!-- Items injected by JS -->
                         </div>
 
-                        <div class="summary-totals" style="border-top: 1px solid #ddd; padding-top: 1rem;">
+                        <!-- Coupon Code -->
+                        <div class="coupon-section"
+                            style="margin-bottom: 1.5rem; display: flex; gap: 0.5rem; padding-bottom: 1.5rem; border-bottom: 1px solid #ddd;">
+                            <input type="text" id="coupon-code" placeholder="Gift card or discount code"
+                                style="flex-grow: 1; padding: 0.8rem; border: 1px solid #ddd; border-radius: 4px; font-size: 0.9rem;">
+                            <button type="button" id="apply-coupon"
+                                style="padding: 0.8rem 1.2rem; background: #ddd; border: none; border-radius: 4px; color: #333; cursor: pointer; font-weight: 500; transition: all 0.2s;">Apply</button>
+                        </div>
+                        <div id="coupon-message" style="margin-top: -1rem; margin-bottom: 1rem; font-size: 0.8rem;">
+                        </div>
+
+                        <div class="summary-totals" style="padding-top: 0;">
                             <div
                                 style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; color: #666;">
                                 <span>Subtotal</span>
                                 <span id="checkout-subtotal">$0.00</span>
                             </div>
+
+                            <div id="checkout-discount-row"
+                                style="display: none; justify-content: space-between; margin-bottom: 0.5rem; color: #28a745;">
+                                <span>Discount (10% OFF)</span>
+                                <span id="checkout-discount">-$0.00</span>
+                            </div>
+
                             <div
                                 style="display: flex; justify-content: space-between; margin-bottom: 1rem; color: #666;">
                                 <span>Shipping</span>
                                 <span id="checkout-shipping">Calculated</span>
                             </div>
+
                             <div
                                 style="display: flex; justify-content: space-between; font-weight: 500; font-size: 1.1rem; padding-top: 1rem; border-top: 1px solid #eee;">
                                 <span>Total</span>

@@ -689,10 +689,36 @@ $(document).ready(function () {
     // Checkout Logic
     // ==========================================================================
     const Checkout = {
+        discountApplied: false, // State
+
         init: function () {
             if (!$('body').hasClass('page-checkout')) return;
 
+            // Reset state
+            this.discountApplied = false;
+
             this.renderSummary();
+
+            // Coupon Logic
+            $('#apply-coupon').on('click', () => {
+                const code = $('#coupon-code').val().trim().toUpperCase();
+                const $msg = $('#coupon-message');
+                const $btn = $('#apply-coupon');
+
+                if (code === 'WELCOME10') {
+                    if (this.discountApplied) return; // Already applied
+
+                    this.discountApplied = true;
+                    $msg.html('<span style="color: #28a745;">Coupon applied successfully!</span>');
+                    $btn.text('Applied').css({ 'background': '#28a745', 'color': '#fff' }).prop('disabled', true);
+                    $('#coupon-code').prop('disabled', true);
+
+                    this.renderSummary(); // Re-calc totals
+                } else {
+                    $msg.html('<span style="color: #dc3545;">Invalid discount code.</span>');
+                    // Shake effect optional
+                }
+            });
 
             // Email Validation on Blur
             $('#email').on('blur', function () {
@@ -760,8 +786,19 @@ $(document).ready(function () {
 
             // Totals
             const subtotal = Cart.items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+
+            // Discount Math
+            let discount = 0;
+            if (this.discountApplied) {
+                discount = subtotal * 0.10;
+                $('#checkout-discount-row').css('display', 'flex');
+                $('#checkout-discount').text(`-$${discount.toFixed(2)}`);
+            } else {
+                $('#checkout-discount-row').hide();
+            }
+
             const shipping = subtotal > 60 ? 0 : 4.99;
-            const total = subtotal + shipping;
+            const total = subtotal - discount + shipping;
 
             $('#checkout-subtotal').text(`$${subtotal.toFixed(2)}`);
             $('#checkout-shipping').text(shipping === 0 ? 'Free' : `$${shipping.toFixed(2)}`);
@@ -786,6 +823,70 @@ $(document).ready(function () {
     };
 
     // ==========================================================================
+    // Newsletter Logic
+    // ==========================================================================
+    const Newsletter = {
+        init: function () {
+            // Check if already closed or subscribed
+            if (localStorage.getItem('svo_newsletter_closed')) return;
+
+            // Inject HTML
+            $('body').append(`
+                <div class="newsletter-overlay" id="newsletter-popup">
+                    <div class="newsletter-modal">
+                        <button class="newsletter-close">&times;</button>
+                        <div id="newsletter-content">
+                            <h3 class="newsletter-title">Join the Club</h3>
+                            <p class="newsletter-desc">Subscribe to our newsletter and get <strong>10% OFF</strong> your first order.</p>
+                            <form class="newsletter-form">
+                                <input type="email" placeholder="Enter your email" required>
+                                <button type="submit" class="btn btn-black">Get Code</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            `);
+
+            // Events
+            const $popup = $('#newsletter-popup');
+            const $close = $('.newsletter-close');
+            const $form = $('.newsletter-form');
+
+            // Show after 3 seconds
+            setTimeout(() => {
+                $popup.addClass('active');
+            }, 3000);
+
+            // Close Logic
+            $close.on('click', () => {
+                $popup.removeClass('active');
+                localStorage.setItem('svo_newsletter_closed', 'true');
+            });
+
+            // Submit Logic
+            $form.on('submit', (e) => {
+                e.preventDefault();
+                // Simulate success
+                $('#newsletter-content').html(`
+                    <h3 class="newsletter-title">Welcome!</h3>
+                    <p class="newsletter-desc">Here is your discount code:</p>
+                    <div class="newsletter-success-code">WELCOME10</div>
+                    <p style="font-size: 0.8rem; margin-top: 1rem; color: #666;">Code copied to clipboard logic would go here</p>
+                    <button class="btn btn-black btn-full newsletter-close-btn" style="margin-top: 1rem;">Start Shopping</button>
+                `);
+
+                // Mark as done so it doesn't show again (or maybe keep it shown? No, user closes it)
+                localStorage.setItem('svo_newsletter_closed', 'true');
+
+                // Bind new close button
+                $('.newsletter-close-btn').on('click', () => {
+                    $popup.removeClass('active');
+                });
+            });
+        }
+    };
+
+    // ==========================================================================
     // Initialize
     // ==========================================================================
     fetchProducts();
@@ -795,6 +896,7 @@ $(document).ready(function () {
     Cart.initDropdown(); // Initialize dropdown
     Checkout.init();
     Confirmation.init();
+    Newsletter.init();
 
     console.log('SVO STUDIO loaded successfully');
 });
