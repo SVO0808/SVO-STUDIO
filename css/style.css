@@ -406,6 +406,16 @@ body.menu-open {
     opacity: 1;
 }
 
+.btn.disabled,
+.btn[disabled] {
+    opacity: 0.5;
+    cursor: not-allowed;
+    pointer-events: none;
+    background-color: var(--color-gray-light);
+    /* Optional: explicit disabled bg */
+    border-color: transparent;
+}
+
 /* ==========================================================================
    Statement Section
    ========================================================================== */

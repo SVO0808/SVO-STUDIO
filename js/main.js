@@ -700,13 +700,17 @@ $(document).ready(function () {
         renderDropdown: function () {
             const $container = $('.mini-cart-items');
             $container.empty();
+            const $checkoutBtn = $('#cart-dropdown .btn-full');
 
             if (this.items.length === 0) {
                 $container.html('<p style="color: #999; text-align: center; padding: 1rem;">Your cart is empty</p>');
                 $('#mini-cart-subtotal').text('$0.00');
                 $('#mini-cart-count').text('0 items');
+                $checkoutBtn.addClass('disabled');
                 return;
             }
+
+            $checkoutBtn.removeClass('disabled');
 
             this.items.forEach(item => {
                 $container.append(`
