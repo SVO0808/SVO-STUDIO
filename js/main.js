@@ -77,26 +77,30 @@ $(document).ready(function () {
     }
 
     // ==========================================================================
-    // Fetch Products Logic
+    // Fetch Products Logic (Home & Shop)
     // ==========================================================================
     let allProducts = [];
 
     function fetchProducts() {
-        // Determine if we are on Shop page or Home page
+        // Determine if we need to fetch products list (Home or Shop)
         const isShopPage = $('body').hasClass('page-shop');
+        const isHomePage = $('.products-swiper').length > 0;
+
+        // If not shop or home, maybe we don't need to fetch ALL products immediately,
+        // unless we want to cache them. For now let's keep it simple.
+        if (!isShopPage && !isHomePage) return;
+
         const $targetContainer = isShopPage ? $('#shop-products-grid') : $('#products-carousel');
 
         // Show loading
         $targetContainer.html('<div class="loading"></div>');
 
-        // Fetch ALL products to handle client-side filtering on shop page
-        // or just to have data ready
         $.ajax({
             url: `${API_BASE_URL}/products`,
             method: 'GET',
             dataType: 'json',
             success: function (products) {
-                // Filter only clothing
+                // Filter only clothing/relevant
                 allProducts = products.filter(p =>
                     p.category === "men's clothing" ||
                     p.category === "women's clothing"
@@ -105,7 +109,7 @@ $(document).ready(function () {
                 if (isShopPage) {
                     renderShopGrid(allProducts);
                     initShopFilters();
-                } else {
+                } else if (isHomePage) {
                     // Home page: Render only men's clothing in carousel
                     const mensProducts = allProducts.filter(p => p.category === "men's clothing");
                     renderCarousel(mensProducts);
@@ -194,9 +198,11 @@ $(document).ready(function () {
             if (categoryParam === 'men') catName = "men's clothing";
             if (categoryParam === 'women') catName = "women's clothing";
 
-            $(`.filter-btn[data-category="${catName}"]`).trigger('click');
+            setTimeout(() => {
+                $(`.filter-btn[data-category="${catName}"]`).trigger('click');
+            }, 100);
         } else {
-            // Default active if filter elements exist
+            // Default active
             if ($('.filter-btn[data-category="all"]').length > 0) {
                 $('.filter-btn[data-category="all"]').addClass('active');
                 $('.filter-btn[data-sort="newest"]').addClass('active');
@@ -220,6 +226,146 @@ $(document).ready(function () {
         }
 
         renderShopGrid(filtered);
+    }
+
+    // ==========================================================================
+    // Product Detail Logic
+    // ==========================================================================
+    function initProductDetail() {
+        if (!$('body').hasClass('page-product')) return;
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const productId = urlParams.get('id');
+
+        if (!productId) {
+            $('#product-loading').hide();
+            $('#product-error').show();
+            return;
+        }
+
+        fetchProductDetail(productId);
+
+        // Size Selector Interaction
+        $('.size-btn').on('click', function () {
+            $('.size-btn').removeClass('active');
+            $(this).addClass('active');
+        });
+
+        // Add to Cart
+        $('.btn-black').on('click', function () {
+            const btn = $(this);
+            const originalText = btn.text();
+
+            btn.text('Added to Cart');
+            btn.css('background-color', '#4CAF50'); // Green
+
+            setTimeout(() => {
+                btn.text(originalText);
+                btn.css('background-color', '');
+            }, 2000);
+        });
+    }
+
+    function fetchProductDetail(id) {
+        $.ajax({
+            url: `${API_BASE_URL}/products/${id}`,
+            method: 'GET',
+            dataType: 'json',
+            success: function (product) {
+                if (!product) {
+                    $('#product-loading').hide();
+                    $('#product-error').show();
+                    return;
+                }
+                renderProductDetail(product);
+            },
+            error: function (error) {
+                console.error('Error details:', error);
+                $('#product-loading').hide();
+                $('#product-error').show();
+            }
+        });
+    }
+
+    function renderProductDetail(product) {
+        // Populate Data
+        $('#pd-image').attr('src', product.image).attr('alt', product.title);
+        $('#pd-category').text(product.category);
+        $('#pd-title').text(product.title);
+        $('#pd-price').text(`$${product.price.toFixed(2)}`);
+        $('#pd-desc').text(product.description); // Description from API
+
+        // Hide Size Selector for Backpacks/Accessories
+        if (product.title.toLowerCase().includes('backpack') || product.category === 'jewelery') {
+            $('.option-group').hide();
+        } else {
+            $('.option-group').show();
+        }
+
+        // Update Page Title
+        document.title = `${product.title} - SVO STUDIO`;
+
+        // Show Content
+        $('#product-loading').hide();
+        $('#product-detail').fadeIn(400);
+    }
+
+    // ==========================================================================
+    // Collection Page Logic
+    // ==========================================================================
+    function initCollection() {
+        if (!$('body').hasClass('page-collection')) return;
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const colId = urlParams.get('id');
+        const $grid = $('#collection-grid');
+        const $loading = $('#loading-indicator');
+
+        // Collection Data
+        const collections = {
+            'fw25': {
+                title: 'FW25 Essentials',
+                desc: 'The new season standard. Bold silhouettes, refined materials.',
+                image: 'img/collection-1.png',
+                category: "men's clothing"
+            },
+            'basics': {
+                title: 'Core Basics',
+                desc: 'Timeless pieces for your daily rotation.',
+                image: 'img/collection-2.png',
+                category: "women's clothing" // Placeholder for basics
+            }
+        };
+
+        const collection = collections[colId];
+
+        if (!collection) {
+            window.location.replace('shop.html');
+            return;
+        }
+
+        // Render Hero
+        $('#col-title').text(collection.title);
+        $('#col-desc').text(collection.desc);
+        $('.collection-hero').css('background-image', `url('${collection.image}')`);
+
+        // Fetch & Render Products (Filtered)
+        $.ajax({
+            url: `${API_BASE_URL}/products/category/${encodeURIComponent(collection.category)}`,
+            method: 'GET',
+            dataType: 'json',
+            success: function (products) {
+                $loading.hide();
+                products.forEach(product => {
+                    $grid.append(createProductCard(product));
+                });
+            },
+            error: function (error) {
+                console.error('Error:', error);
+                $loading.hide();
+                $grid.html('<p class="error">Failed to load collection.</p>');
+            }
+        });
     }
 
     // ==========================================================================
@@ -248,6 +394,8 @@ $(document).ready(function () {
     // Initialize
     // ==========================================================================
     fetchProducts();
+    initProductDetail();
+    initCollection();
 
     console.log('SVO STUDIO loaded successfully');
 });
