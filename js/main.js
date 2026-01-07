@@ -406,6 +406,7 @@ $(document).ready(function () {
     // ==========================================================================
     const Cart = {
         items: [],
+        autoCloseTimer: null,
 
         init: function () {
             this.load();
@@ -598,10 +599,15 @@ $(document).ready(function () {
             const $dropdown = $('#cart-dropdown');
             const $trigger = $('.cart-link');
 
+            // Clean previous events
+            $trigger.off('mouseenter mouseleave');
+            $dropdown.off('mouseenter mouseleave');
+            $(document).off('click.cartDropdown');
+
             // Open on hover trigger
             $trigger.on('mouseenter', () => {
                 clearTimeout(timeout);
-                this.renderDropdown(); // Refresh data
+                this.renderDropdown();
                 $dropdown.addClass('active');
             });
 
@@ -618,8 +624,7 @@ $(document).ready(function () {
             });
 
             // Close on click outside
-            $(document).on('click', function (e) {
-                // If click is not inside dropdown AND not on the trigger
+            $(document).on('click.cartDropdown', function (e) {
                 if (!$(e.target).closest('#cart-dropdown').length && !$(e.target).closest('.cart-link').length) {
                     $dropdown.removeClass('active');
                 }
@@ -655,12 +660,21 @@ $(document).ready(function () {
             $('#mini-cart-count').text(`${this.items.length} items`);
         },
 
+        autoCloseTimer: null, // Added autoCloseTimer property
+
         openDropdown: function () {
             this.renderDropdown();
-            $('#cart-dropdown').addClass('active');
+
+            // Delay adding class to avoid immediate close by document click listener (bubbling)
+            setTimeout(() => {
+                $('#cart-dropdown').addClass('active');
+            }, 10);
+
+            // Clear previous auto-close timer
+            if (this.autoCloseTimer) clearTimeout(this.autoCloseTimer);
 
             // Auto close after 3s if not hovered
-            setTimeout(() => {
+            this.autoCloseTimer = setTimeout(() => {
                 if (!$('#cart-dropdown:hover').length && !$('.cart-link:hover').length) {
                     $('#cart-dropdown').removeClass('active');
                 }

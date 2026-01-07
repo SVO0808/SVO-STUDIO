@@ -1158,10 +1158,8 @@ input.error {
 
 #cart-dropdown {
     position: absolute;
-    top: 90%;
-    /* Just below header content */
+    top: 100%;
     right: 0;
-    /* Align to container edge */
     width: 320px;
     background: #fff;
     border: 1px solid #f0f0f0;
@@ -1174,7 +1172,18 @@ input.error {
     transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
     padding: 1.5rem;
     pointer-events: none;
-    /* Prevent clicks when hidden */
+    margin-top: 10px;
+    /* Visual gap */
+}
+
+/* Invisible Bridge to prevent closing when moving mouse from icon to dropdown */
+#cart-dropdown::after {
+    content: '';
+    position: absolute;
+    top: -20px;
+    left: 0;
+    width: 100%;
+    height: 20px;
 }
 
 #cart-dropdown.active {
