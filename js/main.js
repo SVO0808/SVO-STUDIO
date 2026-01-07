@@ -473,6 +473,7 @@ $(document).ready(function () {
     const Cart = {
         items: [],
         autoCloseTimer: null,
+        discountApplied: false, // Cart discount state
 
         init: function () {
             this.load();
@@ -591,15 +592,27 @@ $(document).ready(function () {
                 `);
             });
 
-            // Update Summary
+            // Update Summary (with discount support)
             const subtotal = this.getTotal();
             const shippingThreshold = 60;
-            const shippingCost = subtotal > shippingThreshold ? 0 : 4.99;
-            const total = subtotal + shippingCost;
 
-            // Selectors (assuming order of rows in HTML)
+            // Calculate discount if applied
+            let discount = 0;
+            if (this.discountApplied) {
+                discount = subtotal * 0.10;
+                $('#cart-discount-row').css('display', 'flex');
+                $('#cart-discount-amount').text(`-$${discount.toFixed(2)}`);
+            } else {
+                $('#cart-discount-row').hide();
+            }
+
+            const subtotalAfterDiscount = subtotal - discount;
+            const shippingCost = subtotalAfterDiscount > shippingThreshold ? 0 : 4.99;
+            const total = subtotalAfterDiscount + shippingCost;
+
+            // Selectors
             const $subtotalRow = $('.summary-row').first();
-            const $shippingRow = $('.summary-row').eq(1); // 2nd row is shipping
+            const $shippingRow = $('.summary-row').not('#cart-discount-row').eq(1);
             const $totalRow = $('.summary-total');
 
             // Render Values
@@ -615,20 +628,44 @@ $(document).ready(function () {
                 $shippingRow.find('span:last-child').css('color', ''); // Reset color
 
                 // Add/Update "Add X for free shipping" message
-                const remaining = shippingThreshold - subtotal;
+                const remaining = shippingThreshold - subtotalAfterDiscount;
                 let $msg = $('.free-shipping-msg');
                 if ($msg.length === 0) {
                     $msg = $('<p class="free-shipping-msg" style="font-size: 0.8rem; color: #666; margin-top: 0.5rem; font-style: italic;"></p>');
                     $shippingRow.after($msg);
                 }
-                $msg.text(`Add $${remaining.toFixed(2)} more for free shipping.`); // Using $ since API is in USD defaults effectively
+                $msg.text(`Add $${remaining.toFixed(2)} more for free shipping.`);
             }
 
             $totalRow.find('span:last-child').text(`$${total.toFixed(2)}`);
             $cartSummary.show();
 
+            // Coupon Logic for Cart Page
+            const self = this;
+            $('#apply-cart-coupon').off('click').on('click', function () {
+                const code = $('#cart-coupon-code').val().trim().toUpperCase();
+                const $msg = $('#cart-coupon-message');
+                const $btn = $(this);
+
+                if (code === 'WELCOME10') {
+                    if (self.discountApplied) return;
+
+                    self.discountApplied = true;
+                    $msg.removeClass('error').addClass('success').text('Coupon applied successfully!');
+                    $btn.text('Applied').css({ 'background': '#28a745', 'color': '#fff' }).prop('disabled', true);
+                    $('#cart-coupon-code').prop('disabled', true);
+
+                    // Re-render to update totals
+                    self.renderCartPage();
+                } else if (code === '') {
+                    $msg.removeClass('success').addClass('error').text('Please enter a code.');
+                } else {
+                    $msg.removeClass('success').addClass('error').text('Invalid discount code.');
+                }
+            });
+
             // Link Checkout Button
-            $('.cart-summary .btn-black').off('click').on('click', function () {
+            $('.cart-summary .btn-black').not('#apply-cart-coupon').off('click').on('click', function () {
                 window.location.href = 'checkout.html';
             });
         },
@@ -957,6 +994,181 @@ $(document).ready(function () {
     };
 
     // ==========================================================================
+    // Animations Module
+    // ==========================================================================
+    const Animations = {
+        init: function () {
+            this.initScrollReveal();
+            this.initParallax();
+            this.initRippleEffect();
+            this.initPageTransition();
+            this.initSectionHeaders();
+        },
+
+        // Scroll Reveal using Intersection Observer
+        initScrollReveal: function () {
+            // Add reveal classes to elements
+            this.addRevealClasses();
+
+            // Intersection Observer for reveal animations
+            const revealObserver = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('active');
+                        // Unobserve after animation (optional - keeps it animated on re-scroll)
+                        // revealObserver.unobserve(entry.target);
+                    }
+                });
+            }, {
+                threshold: 0.1,
+                rootMargin: '0px 0px -50px 0px'
+            });
+
+            // Observe all reveal elements
+            document.querySelectorAll('.reveal, .reveal-stagger, .reveal-left, .reveal-right, .reveal-scale, .section-header').forEach(el => {
+                revealObserver.observe(el);
+            });
+        },
+
+        // Add reveal classes to existing elements
+        addRevealClasses: function () {
+            // Products grid gets staggered animation
+            $('.products-grid, .collections-grid').addClass('reveal-stagger');
+
+            // Sections get reveal animation
+            $('.statement, .about-container, .about-grid').addClass('reveal');
+
+            // About pillars get left reveal
+            $('.about-pillars').addClass('reveal-left');
+
+            // Footer gets reveal
+            $('.footer-content').addClass('reveal');
+        },
+
+        // Parallax Effect for Hero
+        initParallax: function () {
+            const $hero = $('.hero');
+            if ($hero.length === 0) return;
+
+            $(window).on('scroll', function () {
+                const scrolled = $(window).scrollTop();
+                const heroHeight = $hero.outerHeight();
+
+                // Only apply parallax when hero is visible
+                if (scrolled < heroHeight) {
+                    const parallaxValue = scrolled * 0.4;
+                    $hero.css('background-position', `center ${parallaxValue}px`);
+
+                    // Also fade out hero content slightly
+                    const opacity = 1 - (scrolled / heroHeight) * 0.5;
+                    $('.hero-content').css('opacity', Math.max(opacity, 0.5));
+                }
+            });
+        },
+
+        // Ripple Effect on Buttons
+        initRippleEffect: function () {
+            $(document).on('click', '.btn', function (e) {
+                const $btn = $(this);
+
+                // Remove existing ripples
+                $btn.find('.ripple').remove();
+
+                // Calculate ripple position
+                const rect = this.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+
+                // Create ripple element
+                const $ripple = $('<span class="ripple"></span>');
+                $ripple.css({
+                    left: x + 'px',
+                    top: y + 'px',
+                    width: '20px',
+                    height: '20px'
+                });
+
+                $btn.append($ripple);
+
+                // Remove ripple after animation
+                setTimeout(() => {
+                    $ripple.remove();
+                }, 600);
+            });
+        },
+
+        // Page Transition Effect
+        initPageTransition: function () {
+            // Add page transition class to main content
+            $('main').addClass('page-transition');
+        },
+
+        // Section Headers Animation
+        initSectionHeaders: function () {
+            // Trigger section headers immediately if visible
+            setTimeout(() => {
+                $('.section-header').each(function () {
+                    const rect = this.getBoundingClientRect();
+                    if (rect.top < window.innerHeight) {
+                        $(this).addClass('active');
+                    }
+                });
+            }, 500);
+        },
+
+        // Skeleton Loading Helper
+        showSkeleton: function ($container, count = 4) {
+            let skeletonHTML = '';
+            for (let i = 0; i < count; i++) {
+                skeletonHTML += `
+                    <div class="product-card skeleton-wrapper">
+                        <div class="skeleton skeleton-card"></div>
+                        <div class="product-info" style="padding-top: 1rem;">
+                            <div class="skeleton skeleton-text"></div>
+                            <div class="skeleton skeleton-text short"></div>
+                        </div>
+                    </div>
+                `;
+            }
+            $container.html(skeletonHTML);
+        },
+
+        // Counter Animation for Prices
+        animateCounter: function ($el, target, duration = 1000) {
+            const startVal = 0;
+            const startTime = performance.now();
+
+            function updateCounter(currentTime) {
+                const elapsed = currentTime - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+
+                // Easing function
+                const easeOut = 1 - Math.pow(1 - progress, 3);
+                const currentValue = startVal + (target - startVal) * easeOut;
+
+                $el.text('$' + currentValue.toFixed(2));
+
+                if (progress < 1) {
+                    requestAnimationFrame(updateCounter);
+                }
+            }
+
+            requestAnimationFrame(updateCounter);
+        },
+
+        // Text Reveal Helper (wrap words in spans)
+        prepareTextReveal: function ($el) {
+            const text = $el.text();
+            const words = text.split(' ');
+            $el.empty();
+
+            words.forEach((word, i) => {
+                $el.append($('<span></span>').text(word + ' '));
+            });
+        }
+    };
+
+    // ==========================================================================
     // Initialize
     // ==========================================================================
     fetchProducts();
@@ -967,6 +1179,7 @@ $(document).ready(function () {
     Checkout.init();
     Confirmation.init();
     Newsletter.init();
+    Animations.init(); // Initialize animations
 
     console.log('SVO STUDIO loaded successfully');
 });

@@ -68,14 +68,14 @@
                                     <label for="firstName"
                                         style="display: block; font-size: 0.8rem; color: #666; margin-bottom: 0.3rem;">First
                                         Name *</label>
-                                    <input type="text" id="firstName" required
+                                    <input type="text" id="firstName" name="firstName" required
                                         style="width: 100%; padding: 0.8rem; border: 1px solid #ddd; border-radius: 4px;">
                                 </div>
                                 <div class="form-group">
                                     <label for="lastName"
                                         style="display: block; font-size: 0.8rem; color: #666; margin-bottom: 0.3rem;">Last
                                         Name *</label>
-                                    <input type="text" id="lastName" required
+                                    <input type="text" id="lastName" name="lastName" required
                                         style="width: 100%; padding: 0.8rem; border: 1px solid #ddd; border-radius: 4px;">
                                 </div>
                             </div>
@@ -84,7 +84,7 @@
                                 <label for="email"
                                     style="display: block; font-size: 0.8rem; color: #666; margin-bottom: 0.3rem;">Email
                                     *</label>
-                                <input type="email" id="email" required
+                                <input type="email" id="email" name="email" required
                                     style="width: 100%; padding: 0.8rem; border: 1px solid #ddd; border-radius: 4px;">
                             </div>
 
@@ -92,7 +92,7 @@
                                 <label for="address"
                                     style="display: block; font-size: 0.8rem; color: #666; margin-bottom: 0.3rem;">Address
                                     *</label>
-                                <input type="text" id="address" required
+                                <input type="text" id="address" name="address" required
                                     style="width: 100%; padding: 0.8rem; border: 1px solid #ddd; border-radius: 4px;">
                             </div>
 
@@ -102,14 +102,14 @@
                                     <label for="city"
                                         style="display: block; font-size: 0.8rem; color: #666; margin-bottom: 0.3rem;">City
                                         *</label>
-                                    <input type="text" id="city" required
+                                    <input type="text" id="city" name="city" required
                                         style="width: 100%; padding: 0.8rem; border: 1px solid #ddd; border-radius: 4px;">
                                 </div>
                                 <div class="form-group">
                                     <label for="zip"
                                         style="display: block; font-size: 0.8rem; color: #666; margin-bottom: 0.3rem;">ZIP
                                         Code *</label>
-                                    <input type="text" id="zip" required
+                                    <input type="text" id="zip" name="zip" required
                                         style="width: 100%; padding: 0.8rem; border: 1px solid #ddd; border-radius: 4px;">
                                 </div>
                             </div>
@@ -124,7 +124,8 @@
                                 <label for="cardNum"
                                     style="display: block; font-size: 0.8rem; color: #666; margin-bottom: 0.3rem;">Card
                                     Number *</label>
-                                <input type="text" id="cardNum" placeholder="0000 0000 0000 0000" required
+                                <input type="text" id="cardNum" name="cardNum" placeholder="0000 0000 0000 0000"
+                                    required autocomplete="cc-number"
                                     style="width: 100%; padding: 0.8rem; border: 1px solid #ddd; border-radius: 4px;">
                             </div>
 
@@ -133,14 +134,16 @@
                                     <label for="expiry"
                                         style="display: block; font-size: 0.8rem; color: #666; margin-bottom: 0.3rem;">Expiry
                                         *</label>
-                                    <input type="text" id="expiry" placeholder="MM/YY" required
+                                    <input type="text" id="expiry" name="expiry" placeholder="MM/YY" required
+                                        autocomplete="cc-exp"
                                         style="width: 100%; padding: 0.8rem; border: 1px solid #ddd; border-radius: 4px;">
                                 </div>
                                 <div class="form-group">
                                     <label for="cvv"
                                         style="display: block; font-size: 0.8rem; color: #666; margin-bottom: 0.3rem;">CVV
                                         *</label>
-                                    <input type="text" id="cvv" placeholder="123" required
+                                    <input type="text" id="cvv" name="cvv" placeholder="123" required
+                                        autocomplete="cc-csc"
                                         style="width: 100%; padding: 0.8rem; border: 1px solid #ddd; border-radius: 4px;">
                                 </div>
                             </div>
@@ -163,7 +166,8 @@
                         <!-- Coupon Code -->
                         <div class="coupon-section"
                             style="margin-bottom: 1.5rem; display: flex; gap: 0.5rem; padding-bottom: 1.5rem; border-bottom: 1px solid #ddd;">
-                            <input type="text" id="coupon-code" placeholder="Gift card or discount code"
+                            <input type="text" id="coupon-code" name="couponCode"
+                                placeholder="Gift card or discount code"
                                 style="flex-grow: 1; padding: 0.8rem; border: 1px solid #ddd; border-radius: 4px; font-size: 0.9rem;">
                             <button type="button" id="apply-coupon"
                                 style="padding: 0.8rem 1.2rem; background: #ddd; border: none; border-radius: 4px; color: #333; cursor: pointer; font-weight: 500; transition: all 0.2s;">Apply</button>

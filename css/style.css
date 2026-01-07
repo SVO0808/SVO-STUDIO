@@ -1027,7 +1027,8 @@ body.menu-open {
     margin-bottom: var(--spacing-md);
 }
 
-.option-group label {
+.option-group label,
+.option-label {
     display: block;
     font-size: 0.8rem;
     text-transform: uppercase;
@@ -1571,5 +1572,674 @@ input.error {
     .about-pillars {
         padding-left: var(--spacing-sm);
         padding-right: var(--spacing-sm);
+    }
+}
+
+/* ==========================================================================
+   Newsletter Modal
+   ========================================================================== */
+.newsletter-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    opacity: 0;
+    visibility: hidden;
+    transition: all var(--transition-normal);
+}
+
+.newsletter-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.newsletter-modal {
+    background: var(--color-white);
+    padding: var(--spacing-lg);
+    max-width: 420px;
+    width: 90%;
+    position: relative;
+    text-align: center;
+    border-radius: 4px;
+    transform: translateY(20px);
+    transition: transform var(--transition-normal);
+}
+
+.newsletter-overlay.active .newsletter-modal {
+    transform: translateY(0);
+}
+
+.newsletter-close {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: var(--color-gray);
+    transition: color var(--transition-fast);
+    line-height: 1;
+}
+
+.newsletter-close:hover {
+    color: var(--color-black);
+}
+
+.newsletter-title {
+    font-size: 1.5rem;
+    font-weight: 400;
+    letter-spacing: 0.1em;
+    margin-bottom: var(--spacing-sm);
+    text-transform: uppercase;
+}
+
+.newsletter-desc {
+    font-size: 0.9rem;
+    color: var(--color-gray);
+    margin-bottom: var(--spacing-md);
+    line-height: 1.6;
+}
+
+.newsletter-form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+}
+
+.newsletter-form input[type="email"] {
+    width: 100%;
+    padding: 0.9rem 1rem;
+    border: 1px solid var(--color-beige);
+    border-radius: 4px;
+    font-size: 0.9rem;
+    font-family: var(--font-body);
+    transition: border-color var(--transition-fast);
+}
+
+.newsletter-form input[type="email"]:focus {
+    outline: none;
+    border-color: var(--color-black);
+}
+
+.newsletter-form .btn {
+    width: 100%;
+}
+
+.newsletter-success-code {
+    background: var(--color-beige);
+    padding: var(--spacing-md);
+    font-size: 1.5rem;
+    font-weight: 500;
+    letter-spacing: 0.2em;
+    color: var(--color-black);
+    border-radius: 4px;
+    margin: var(--spacing-sm) 0;
+    user-select: all;
+}
+
+/* ==========================================================================
+   Cart Coupon Section
+   ========================================================================== */
+.cart-coupon {
+    margin-top: var(--spacing-md);
+    padding-top: var(--spacing-md);
+    border-top: 1px solid var(--color-beige);
+}
+
+.cart-coupon-form {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.cart-coupon-form input {
+    flex: 1;
+    padding: 0.8rem 1rem;
+    border: 1px solid var(--color-beige);
+    border-radius: 4px;
+    font-size: 0.9rem;
+    font-family: var(--font-body);
+}
+
+.cart-coupon-form input:focus {
+    outline: none;
+    border-color: var(--color-black);
+}
+
+.cart-coupon-form button {
+    padding: 0.8rem 1.5rem;
+    background: var(--color-beige);
+    border: none;
+    border-radius: 4px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.cart-coupon-form button:hover {
+    background: var(--color-stone);
+}
+
+.cart-coupon-message {
+    margin-top: 0.5rem;
+    font-size: 0.85rem;
+}
+
+.cart-coupon-message.success {
+    color: #28a745;
+}
+
+.cart-coupon-message.error {
+    color: #dc3545;
+}
+
+.cart-discount-row {
+    color: #28a745;
+}
+
+/* ==========================================================================
+   ANIMATIONS & INTERACTIONS
+   ========================================================================== */
+
+/* --- Scroll Reveal Animations --- */
+.reveal {
+    opacity: 0;
+    transform: translateY(40px);
+    transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1),
+        transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.reveal.active {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Staggered animation for grid items */
+.reveal-stagger>* {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1),
+        transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.reveal-stagger.active>*:nth-child(1) {
+    transition-delay: 0s;
+}
+
+.reveal-stagger.active>*:nth-child(2) {
+    transition-delay: 0.1s;
+}
+
+.reveal-stagger.active>*:nth-child(3) {
+    transition-delay: 0.2s;
+}
+
+.reveal-stagger.active>*:nth-child(4) {
+    transition-delay: 0.3s;
+}
+
+.reveal-stagger.active>*:nth-child(5) {
+    transition-delay: 0.4s;
+}
+
+.reveal-stagger.active>*:nth-child(6) {
+    transition-delay: 0.5s;
+}
+
+.reveal-stagger.active>*:nth-child(7) {
+    transition-delay: 0.6s;
+}
+
+.reveal-stagger.active>*:nth-child(8) {
+    transition-delay: 0.7s;
+}
+
+.reveal-stagger.active>* {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Fade in from sides */
+.reveal-left {
+    opacity: 0;
+    transform: translateX(-50px);
+    transition: opacity 0.8s ease, transform 0.8s ease;
+}
+
+.reveal-right {
+    opacity: 0;
+    transform: translateX(50px);
+    transition: opacity 0.8s ease, transform 0.8s ease;
+}
+
+.reveal-left.active,
+.reveal-right.active {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+/* Scale reveal */
+.reveal-scale {
+    opacity: 0;
+    transform: scale(0.9);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+}
+
+.reveal-scale.active {
+    opacity: 1;
+    transform: scale(1);
+}
+
+/* --- Parallax Effect --- */
+.parallax-hero {
+    position: relative;
+    overflow: hidden;
+}
+
+.parallax-hero::before {
+    content: '';
+    position: absolute;
+    top: -20%;
+    left: 0;
+    right: 0;
+    bottom: -20%;
+    background-image: inherit;
+    background-size: cover;
+    background-position: center;
+    will-change: transform;
+    z-index: -1;
+}
+
+/* --- Enhanced Product Card Hover --- */
+.product-card {
+    position: relative;
+    overflow: hidden;
+}
+
+.product-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0);
+    transition: background var(--transition-normal);
+    z-index: 1;
+    pointer-events: none;
+}
+
+.product-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+}
+
+.product-card:hover::before {
+    background: rgba(0, 0, 0, 0.02);
+}
+
+.product-card:hover .product-image img {
+    transform: scale(1.08);
+}
+
+/* Quick view button on hover */
+.product-card .quick-view {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    opacity: 0;
+    z-index: 2;
+    padding: 0.75rem 1.5rem;
+    background: var(--color-black);
+    color: var(--color-white);
+    font-size: 0.75rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    border: none;
+    cursor: pointer;
+    transition: all var(--transition-normal);
+}
+
+.product-card:hover .quick-view {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+}
+
+/* --- Button Ripple Effect --- */
+.btn {
+    position: relative;
+    overflow: hidden;
+}
+
+.btn .ripple {
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.4);
+    transform: scale(0);
+    animation: ripple-animation 0.6s linear;
+    pointer-events: none;
+}
+
+@keyframes ripple-animation {
+    to {
+        transform: scale(4);
+        opacity: 0;
+    }
+}
+
+/* --- Logo Hover Animation --- */
+.logo {
+    transition: transform var(--transition-normal);
+}
+
+.logo:hover {
+    transform: scale(1.05);
+    opacity: 1;
+}
+
+.logo img {
+    transition: filter var(--transition-normal);
+}
+
+.logo:hover img {
+    filter: brightness(1.1);
+}
+
+/* --- Loading Skeleton --- */
+.skeleton {
+    background: linear-gradient(90deg,
+            var(--color-beige) 0%,
+            var(--color-white) 50%,
+            var(--color-beige) 100%);
+    background-size: 200% 100%;
+    animation: skeleton-loading 1.5s ease-in-out infinite;
+}
+
+@keyframes skeleton-loading {
+    0% {
+        background-position: 200% 0;
+    }
+
+    100% {
+        background-position: -200% 0;
+    }
+}
+
+.skeleton-card {
+    aspect-ratio: 3/4;
+    border-radius: 4px;
+}
+
+.skeleton-text {
+    height: 1rem;
+    border-radius: 4px;
+    margin-bottom: 0.5rem;
+}
+
+.skeleton-text.short {
+    width: 60%;
+}
+
+/* --- Text Reveal Animation --- */
+.text-reveal {
+    overflow: hidden;
+}
+
+.text-reveal span {
+    display: inline-block;
+    transform: translateY(100%);
+    opacity: 0;
+    transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1),
+        opacity 0.6s ease;
+}
+
+.text-reveal.active span {
+    transform: translateY(0);
+    opacity: 1;
+}
+
+/* Word by word reveal */
+.text-reveal-words span {
+    display: inline-block;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.4s ease, transform 0.4s ease;
+}
+
+.text-reveal-words.active span:nth-child(1) {
+    transition-delay: 0s;
+}
+
+.text-reveal-words.active span:nth-child(2) {
+    transition-delay: 0.05s;
+}
+
+.text-reveal-words.active span:nth-child(3) {
+    transition-delay: 0.1s;
+}
+
+.text-reveal-words.active span:nth-child(4) {
+    transition-delay: 0.15s;
+}
+
+.text-reveal-words.active span:nth-child(5) {
+    transition-delay: 0.2s;
+}
+
+.text-reveal-words.active span:nth-child(6) {
+    transition-delay: 0.25s;
+}
+
+.text-reveal-words.active span:nth-child(7) {
+    transition-delay: 0.3s;
+}
+
+.text-reveal-words.active span:nth-child(8) {
+    transition-delay: 0.35s;
+}
+
+.text-reveal-words.active span {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* --- Floating Animation (for CTAs) --- */
+.float-animation {
+    animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-10px);
+    }
+}
+
+/* --- Pulse Animation (for badges, notifications) --- */
+.pulse {
+    animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+
+    0%,
+    100% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.05);
+    }
+}
+
+/* --- Smooth Page Transitions --- */
+.page-transition {
+    animation: pageIn 0.5s ease-out;
+}
+
+@keyframes pageIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* --- Collection Card Enhanced --- */
+.collection-card {
+    transition: transform var(--transition-normal),
+        box-shadow var(--transition-normal);
+}
+
+.collection-card:hover {
+    transform: translateY(-8px) scale(1.02);
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+}
+
+.collection-card:hover .collection-title {
+    letter-spacing: 0.15em;
+}
+
+.collection-title {
+    transition: letter-spacing var(--transition-normal);
+}
+
+/* --- Hero Content Animation --- */
+.hero-content {
+    animation: heroFadeIn 1.2s ease-out;
+}
+
+@keyframes heroFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(40px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.hero-title {
+    animation: heroTitleIn 1s ease-out 0.2s both;
+}
+
+@keyframes heroTitleIn {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+        letter-spacing: 0.3em;
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+        letter-spacing: 0.2em;
+    }
+}
+
+.hero-subtitle {
+    animation: fadeInUp 0.8s ease-out 0.5s both;
+}
+
+.hero-cta {
+    animation: fadeInUp 0.8s ease-out 0.7s both;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* --- Input Focus Animation --- */
+input:focus,
+textarea:focus {
+    animation: inputFocus 0.3s ease;
+}
+
+@keyframes inputFocus {
+    0% {
+        box-shadow: 0 0 0 0 rgba(26, 26, 26, 0.2);
+    }
+
+    100% {
+        box-shadow: 0 0 0 3px rgba(26, 26, 26, 0.1);
+    }
+}
+
+/* --- Cart Badge Bounce --- */
+.cart-badge {
+    animation: badgeBounce 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+@keyframes badgeBounce {
+    0% {
+        transform: scale(0);
+    }
+
+    50% {
+        transform: scale(1.3);
+    }
+
+    100% {
+        transform: scale(1);
+    }
+}
+
+/* --- Section Headers --- */
+.section-header {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+}
+
+.section-header.active {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* --- Reduce motion for accessibility --- */
+@media (prefers-reduced-motion: reduce) {
+
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+
+    .reveal,
+    .reveal-stagger>*,
+    .reveal-left,
+    .reveal-right,
+    .reveal-scale {
+        opacity: 1;
+        transform: none;
     }
 }
