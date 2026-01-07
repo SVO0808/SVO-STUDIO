@@ -808,6 +808,18 @@ $(document).ready(function () {
     const Checkout = {
         discountApplied: false, // State
 
+        // ======================================================================
+        // Payment Validation Regex Patterns
+        // ======================================================================
+        patterns: {
+            // Card Number: 13-19 digits (with or without spaces/dashes)
+            cardNumber: /^(\d{4}[\s-]?){3}\d{1,7}$|^\d{13,19}$/,
+            // Expiry Date: MM/YY format where MM is 01-12
+            expiry: /^(0[1-9]|1[0-2])\/([0-9]{2})$/,
+            // CVV: 3 digits (Visa/MC) or 4 digits (Amex)
+            cvv: /^[0-9]{3,4}$/
+        },
+
         init: function () {
             if (!$('body').hasClass('page-checkout')) return;
 
@@ -815,6 +827,7 @@ $(document).ready(function () {
             this.discountApplied = false;
 
             this.renderSummary();
+            this.initPaymentValidation(); // Initialize payment field validation
 
             // Coupon Logic
             $('#apply-coupon').on('click', () => {
@@ -860,8 +873,14 @@ $(document).ready(function () {
                 $(this).parent().find('.error-message').remove();
             });
 
-            $('#checkout-form').on('submit', function (e) {
+            $('#checkout-form').on('submit', (e) => {
                 e.preventDefault();
+
+                // Validate all payment fields before submit
+                if (!this.validateAllPaymentFields()) {
+                    return;
+                }
+
                 const $btn = $('#btn-pay');
                 const originalText = $btn.text();
 
@@ -872,6 +891,146 @@ $(document).ready(function () {
                     window.location.href = 'confirmation.html';
                 }, 2000);
             });
+        },
+
+        // ======================================================================
+        // Payment Field Validation & Auto-Formatting
+        // ======================================================================
+        initPaymentValidation: function () {
+            const self = this;
+
+            // ----- Card Number: Auto-format with spaces -----
+            $('#cardNum').on('input', function () {
+                let value = $(this).val().replace(/\D/g, ''); // Remove non-digits
+                value = value.substring(0, 19); // Max 19 digits
+
+                // Add space every 4 digits
+                let formatted = '';
+                for (let i = 0; i < value.length; i++) {
+                    if (i > 0 && i % 4 === 0) {
+                        formatted += ' ';
+                    }
+                    formatted += value[i];
+                }
+
+                $(this).val(formatted);
+                self.clearError($(this));
+            });
+
+            $('#cardNum').on('blur', function () {
+                const value = $(this).val().replace(/\s/g, ''); // Remove spaces for validation
+                if (value.length > 0 && !self.patterns.cardNumber.test($(this).val())) {
+                    self.showError($(this), 'Please enter a valid card number (13-19 digits)');
+                }
+            });
+
+            // ----- Expiry Date: Auto-format MM/YY -----
+            $('#expiry').on('input', function () {
+                let value = $(this).val().replace(/\D/g, ''); // Remove non-digits
+                value = value.substring(0, 4); // Max 4 digits (MMYY)
+
+                // Auto-add slash after MM
+                if (value.length >= 2) {
+                    value = value.substring(0, 2) + '/' + value.substring(2);
+                }
+
+                $(this).val(value);
+                self.clearError($(this));
+            });
+
+            $('#expiry').on('blur', function () {
+                const value = $(this).val();
+                if (value.length > 0) {
+                    if (!self.patterns.expiry.test(value)) {
+                        self.showError($(this), 'Please enter a valid date (MM/YY)');
+                    } else if (self.isExpired(value)) {
+                        self.showError($(this), 'This card has expired');
+                    }
+                }
+            });
+
+            // ----- CVV: Only digits, max 4 -----
+            $('#cvv').on('input', function () {
+                let value = $(this).val().replace(/\D/g, ''); // Remove non-digits
+                value = value.substring(0, 4); // Max 4 digits
+                $(this).val(value);
+                self.clearError($(this));
+            });
+
+            $('#cvv').on('blur', function () {
+                const value = $(this).val();
+                if (value.length > 0 && !self.patterns.cvv.test(value)) {
+                    self.showError($(this), 'CVV must be 3 or 4 digits');
+                }
+            });
+        },
+
+        // Check if expiry date is in the past
+        isExpired: function (expiry) {
+            const match = expiry.match(this.patterns.expiry);
+            if (!match) return true;
+
+            const month = parseInt(match[1], 10);
+            const year = parseInt('20' + match[2], 10); // Convert YY to 20YY
+
+            const now = new Date();
+            const currentMonth = now.getMonth() + 1; // getMonth() is 0-indexed
+            const currentYear = now.getFullYear();
+
+            // Card expires at the END of the expiry month
+            if (year < currentYear) return true;
+            if (year === currentYear && month < currentMonth) return true;
+
+            return false;
+        },
+
+        // Show error message for a field
+        showError: function ($input, message) {
+            const $parent = $input.parent();
+
+            // Remove existing error
+            this.clearError($input);
+
+            // Add error state
+            $input.addClass('error').css('border-color', '#dc3545');
+            $parent.append(`<span class="error-message" style="color: #dc3545; font-size: 0.75rem; display: block; margin-top: 0.25rem;">${message}</span>`);
+        },
+
+        // Clear error message for a field
+        clearError: function ($input) {
+            $input.removeClass('error').css('border-color', '#ddd');
+            $input.parent().find('.error-message').remove();
+        },
+
+        // Validate all payment fields before submit
+        validateAllPaymentFields: function () {
+            let isValid = true;
+
+            // Card Number
+            const cardNum = $('#cardNum').val();
+            if (!cardNum || !this.patterns.cardNumber.test(cardNum)) {
+                this.showError($('#cardNum'), 'Please enter a valid card number');
+                isValid = false;
+            }
+
+            // Expiry
+            const expiry = $('#expiry').val();
+            if (!expiry || !this.patterns.expiry.test(expiry)) {
+                this.showError($('#expiry'), 'Please enter a valid date (MM/YY)');
+                isValid = false;
+            } else if (this.isExpired(expiry)) {
+                this.showError($('#expiry'), 'This card has expired');
+                isValid = false;
+            }
+
+            // CVV
+            const cvv = $('#cvv').val();
+            if (!cvv || !this.patterns.cvv.test(cvv)) {
+                this.showError($('#cvv'), 'CVV must be 3 or 4 digits');
+                isValid = false;
+            }
+
+            return isValid;
         },
 
         renderSummary: function () {
