@@ -138,6 +138,11 @@ $(document).ready(function () {
         });
 
         initSwiper();
+
+        // Trigger animations on new elements
+        if (typeof Animations !== 'undefined') {
+            Animations.observeNewElements();
+        }
     }
 
     function renderShopGrid(products) {
@@ -152,6 +157,11 @@ $(document).ready(function () {
         products.forEach(product => {
             $grid.append(createProductCard(product));
         });
+
+        // Trigger animations on new elements
+        if (typeof Animations !== 'undefined') {
+            Animations.observeNewElements();
+        }
     }
 
     function createProductCard(product) {
@@ -997,36 +1007,29 @@ $(document).ready(function () {
     // Animations Module
     // ==========================================================================
     const Animations = {
+        revealObserver: null,
+
         init: function () {
-            this.initScrollReveal();
-            this.initParallax();
-            this.initRippleEffect();
+            this.createObserver();
+            this.addRevealClasses();
+            this.observeElements();
+            // this.initParallax(); // Disabled - removed per user request
+            // this.initRippleEffect(); // Disabled - removed per user request
             this.initPageTransition();
             this.initSectionHeaders();
         },
 
-        // Scroll Reveal using Intersection Observer
-        initScrollReveal: function () {
-            // Add reveal classes to elements
-            this.addRevealClasses();
-
-            // Intersection Observer for reveal animations
-            const revealObserver = new IntersectionObserver((entries) => {
+        // Create the Intersection Observer once
+        createObserver: function () {
+            this.revealObserver = new IntersectionObserver((entries) => {
                 entries.forEach(entry => {
                     if (entry.isIntersecting) {
                         entry.target.classList.add('active');
-                        // Unobserve after animation (optional - keeps it animated on re-scroll)
-                        // revealObserver.unobserve(entry.target);
                     }
                 });
             }, {
                 threshold: 0.1,
-                rootMargin: '0px 0px -50px 0px'
-            });
-
-            // Observe all reveal elements
-            document.querySelectorAll('.reveal, .reveal-stagger, .reveal-left, .reveal-right, .reveal-scale, .section-header').forEach(el => {
-                revealObserver.observe(el);
+                rootMargin: '0px 0px -30px 0px'
             });
         },
 
@@ -1034,6 +1037,12 @@ $(document).ready(function () {
         addRevealClasses: function () {
             // Products grid gets staggered animation
             $('.products-grid, .collections-grid').addClass('reveal-stagger');
+
+            // Product cards get individual reveal
+            $('.product-card').addClass('reveal');
+
+            // Collection cards
+            $('.collection-card').addClass('reveal-scale');
 
             // Sections get reveal animation
             $('.statement, .about-container, .about-grid').addClass('reveal');
@@ -1043,6 +1052,28 @@ $(document).ready(function () {
 
             // Footer gets reveal
             $('.footer-content').addClass('reveal');
+
+            // Featured products section
+            $('.featured-products').addClass('reveal');
+        },
+
+        // Observe all reveal elements
+        observeElements: function () {
+            if (!this.revealObserver) return;
+
+            document.querySelectorAll('.reveal, .reveal-stagger, .reveal-left, .reveal-right, .reveal-scale, .section-header').forEach(el => {
+                this.revealObserver.observe(el);
+            });
+        },
+
+        // Re-observe dynamic content (call after products load)
+        observeNewElements: function () {
+            // Add classes to new product cards
+            $('.product-card:not(.reveal)').addClass('reveal');
+            $('.collection-card:not(.reveal-scale)').addClass('reveal-scale');
+
+            // Observe new elements
+            this.observeElements();
         },
 
         // Parallax Effect for Hero
