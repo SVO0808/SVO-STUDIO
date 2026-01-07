@@ -444,12 +444,16 @@ $(document).ready(function () {
             }
 
             this.save();
+            this.updateBadge(); // badge update
+            this.openDropdown(); // Show mini cart
         },
 
         removeItem: function (index) {
             this.items.splice(index, 1);
             this.save();
             this.renderCartPage();
+            this.renderDropdown(); // Update dropdown if open
+            this.updateBadge();
         },
 
         changeQty: function (index, delta) {
@@ -560,6 +564,107 @@ $(document).ready(function () {
             $('.cart-summary .btn-black').off('click').on('click', function () {
                 window.location.href = 'checkout.html';
             });
+        },
+
+        // ======================================================================
+        // Dropdown Logic
+        // ======================================================================
+        initDropdown: function () {
+            // Inject HTML if not exists
+            if ($('#cart-dropdown').length === 0) {
+                $('.nav.container').append(`
+                    <div id="cart-dropdown">
+                        <div class="mini-cart-header">
+                            <span>Shopping Cart</span>
+                            <span id="mini-cart-count" style="color: #666; font-size: 0.8rem;">0 items</span>
+                        </div>
+                        <div class="mini-cart-items">
+                            <!-- Items -->
+                        </div>
+                        <div class="mini-cart-footer">
+                            <div class="mini-cart-total">
+                                <span>Subtotal:</span>
+                                <span id="mini-cart-subtotal">$0.00</span>
+                            </div>
+                            <a href="checkout.html" class="btn btn-black btn-full">Checkout</a>
+                            <a href="cart.html" style="display: block; text-align: center; margin-top: 0.5rem; font-size: 0.8rem; color: #666; text-decoration: underline;">View Cart</a>
+                        </div>
+                    </div>
+                `);
+            }
+
+            // Events
+            let timeout;
+            const $dropdown = $('#cart-dropdown');
+            const $trigger = $('.cart-link');
+
+            // Open on hover trigger
+            $trigger.on('mouseenter', () => {
+                clearTimeout(timeout);
+                this.renderDropdown(); // Refresh data
+                $dropdown.addClass('active');
+            });
+
+            // Keep open on hover dropdown
+            $dropdown.on('mouseenter', () => {
+                clearTimeout(timeout);
+            });
+
+            // Close on leave (with delay)
+            $trigger.add($dropdown).on('mouseleave', () => {
+                timeout = setTimeout(() => {
+                    $dropdown.removeClass('active');
+                }, 300);
+            });
+
+            // Close on click outside
+            $(document).on('click', function (e) {
+                // If click is not inside dropdown AND not on the trigger
+                if (!$(e.target).closest('#cart-dropdown').length && !$(e.target).closest('.cart-link').length) {
+                    $dropdown.removeClass('active');
+                }
+            });
+        },
+
+        renderDropdown: function () {
+            const $container = $('.mini-cart-items');
+            $container.empty();
+
+            if (this.items.length === 0) {
+                $container.html('<p style="color: #999; text-align: center; padding: 1rem;">Your cart is empty</p>');
+                $('#mini-cart-subtotal').text('$0.00');
+                $('#mini-cart-count').text('0 items');
+                return;
+            }
+
+            this.items.forEach(item => {
+                $container.append(`
+                    <div class="mini-cart-item">
+                        <img src="${item.image}" alt="${item.title}">
+                        <div style="flex-grow: 1;">
+                            <p style="font-size: 0.85rem; font-weight: 500; margin: 0; line-height: 1.2;">${item.title}</p>
+                            <p style="font-size: 0.75rem; color: #666; margin: 0.25rem 0;">Size: ${item.size} | Qty: ${item.quantity}</p>
+                            <p style="font-size: 0.85rem; font-weight: 500;">$${(item.price * item.quantity).toFixed(2)}</p>
+                        </div>
+                    </div>
+                `);
+            });
+
+            const subtotal = this.getTotal();
+            $('#mini-cart-subtotal').text(`$${subtotal.toFixed(2)}`);
+            $('#mini-cart-count').text(`${this.items.length} items`);
+        },
+
+        openDropdown: function () {
+            this.renderDropdown();
+            $('#cart-dropdown').addClass('active');
+
+            // Auto close after 3s if not hovered
+            setTimeout(() => {
+                if (!$('#cart-dropdown:hover').length && !$('.cart-link:hover').length) {
+                    $('#cart-dropdown').removeClass('active');
+                }
+            }, 3000);
         }
     };
 
@@ -574,6 +679,29 @@ $(document).ready(function () {
             if (!$('body').hasClass('page-checkout')) return;
 
             this.renderSummary();
+
+            // Email Validation on Blur
+            $('#email').on('blur', function () {
+                const $input = $(this);
+                const email = $input.val();
+                const $parent = $input.parent();
+
+                // Remove existing error
+                $input.removeClass('error');
+                $parent.find('.error-message').remove();
+
+                // Check validity
+                if (email.length > 0 && !this.checkValidity()) {
+                    $input.addClass('error');
+                    $parent.append('<span class="error-message">Please enter a valid email address</span>');
+                }
+            });
+
+            // Clear error on modify
+            $('#email').on('input', function () {
+                $(this).removeClass('error');
+                $(this).parent().find('.error-message').remove();
+            });
 
             $('#checkout-form').on('submit', function (e) {
                 e.preventDefault();
@@ -650,6 +778,7 @@ $(document).ready(function () {
     initProductDetail();
     initCollection();
     Cart.init();
+    Cart.initDropdown(); // Initialize dropdown
     Checkout.init();
     Confirmation.init();
 
