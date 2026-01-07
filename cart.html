@@ -4,8 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="SVO STUDIO - Shop Premium Streetwear.">
-    <title>Shop - SVO STUDIO</title>
+    <meta name="description" content="SVO STUDIO - Shopping Cart.">
+    <title>Cart - SVO STUDIO</title>
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -16,7 +16,7 @@
     <link rel="stylesheet" href="css/style.css">
 </head>
 
-<body class="page-shop">
+<body class="page-cart">
 
     <!-- Header -->
     <header class="header">
@@ -27,10 +27,10 @@
 
             <ul class="nav-menu" id="nav-menu">
                 <li class="nav-item"><a href="index.html" class="nav-link">Home</a></li>
-                <li class="nav-item"><a href="shop.html" class="nav-link active">Shop</a></li>
+                <li class="nav-item"><a href="shop.html" class="nav-link">Shop</a></li>
                 <li class="nav-item"><a href="about.html" class="nav-link">About</a></li>
                 <li class="nav-item">
-                    <a href="cart.html" class="nav-link cart-link" aria-label="Cart">
+                    <a href="cart.html" class="nav-link active cart-link" aria-label="Cart">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <path
                                 d="M6 2L3 6V20C3 20.5304 3.21071 21.0391 3.58579 21.4142C3.96086 21.7893 4.46957 22 5 22H19C19.5304 22 20.0391 21.7893 20.4142 21.4142C20.7893 21.0391 21 20.5304 21 20V6L18 2H6Z"
@@ -56,75 +56,39 @@
     </header>
 
     <!-- Main Content -->
-    <main class="main">
+    <main class="main section">
+        <div class="container">
+            <h1 class="section-title">Shopping Cart</h1>
 
-        <!-- Collections Grid (Top Section) -->
-        <section class="collections section">
-            <div class="container">
-                <h1 class="page-title">Collections</h1>
-                <div class="collections-grid">
-                    <a href="collection.html?id=fw25" class="collection-card">
-                        <div class="collection-image">
-                            <img src="img/collection-1.png" alt="FW25 Collection">
-                            <div class="collection-overlay"></div>
-                        </div>
-                        <div class="collection-content">
-                            <h2 class="collection-title">FW25 Essentials</h2>
-                            <span class="btn-text">View Collection</span>
-                        </div>
-                    </a>
-                    <a href="collection.html?id=basics" class="collection-card">
-                        <div class="collection-image">
-                            <img src="img/collection-2.png" alt="Core Basics">
-                            <div class="collection-overlay"></div>
-                        </div>
-                        <div class="collection-content">
-                            <h2 class="collection-title">Core Basics</h2>
-                            <span class="btn-text">View Collection</span>
-                        </div>
-                    </a>
-                </div>
-            </div>
-        </section>
-
-        <!-- Shop All (Bottom Section) -->
-        <section id="shop-all" class="shop section">
-            <div class="container">
-                <div class="shop-layout">
-
-                    <!-- Filters Sidebar -->
-                    <aside class="shop-sidebar">
-                        <div class="filter-group">
-                            <h3 class="filter-title">Category</h3>
-                            <ul class="filter-list">
-                                <li><button class="filter-btn active" data-category="all">All</button></li>
-                                <li><button class="filter-btn" data-category="men's clothing">Men</button></li>
-                                <li><button class="filter-btn" data-category="women's clothing">Women</button>
-                                </li>
-                            </ul>
-                        </div>
-
-                        <div class="filter-group">
-                            <h3 class="filter-title">Sort By</h3>
-                            <ul class="filter-list">
-                                <li><button class="filter-btn" data-sort="newest">Newest</button></li>
-                                <li><button class="filter-btn" data-sort="price-asc">Price: Low to High</button></li>
-                                <li><button class="filter-btn" data-sort="price-desc">Price: High to Low</button></li>
-                            </ul>
-                        </div>
-                    </aside>
-
-                    <!-- Products Grid -->
-                    <div class="shop-content">
-                        <div class="products-grid shop-grid" id="shop-products-grid">
-                            <!-- Products loaded via JS -->
-                        </div>
+            <div class="cart-layout">
+                <div class="cart-items">
+                    <!-- Static Example Item for visual structure (or empty state) -->
+                    <!-- Ideally this would be populated by JS -->
+                    <div class="cart-empty-message">
+                        <p>Your cart is currently empty.</p>
+                        <a href="shop.html" class="btn btn-black"
+                            style="margin-top: 1rem; display: inline-block;">Continue Shopping</a>
                     </div>
+                </div>
 
+                <div class="cart-summary" style="display: none;">
+                    <h3 class="summary-title">Summary</h3>
+                    <div class="summary-row">
+                        <span>Subtotal</span>
+                        <span>$0.00</span>
+                    </div>
+                    <div class="summary-row">
+                        <span>Shipping</span>
+                        <span>Calculated at checkout</span>
+                    </div>
+                    <div class="summary-total">
+                        <span>Total</span>
+                        <span>$0.00</span>
+                    </div>
+                    <button class="btn btn-black btn-full">Checkout</button>
                 </div>
             </div>
-        </section>
-
+        </div>
     </main>
 
     <!-- Footer -->
@@ -151,6 +115,8 @@
                         <h4 class="footer-heading">Info</h4>
                         <ul class="footer-links">
                             <li><a href="about.html">About Us</a></li>
+                            <!-- Removed Contact Link or kept it? User asked to replace PAGE. 
+                                 I'll link Contact to cart or remove it. Let's remove it for now as "Contact" page is gone. -->
                         </ul>
                     </div>
                 </nav>

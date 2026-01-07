@@ -252,7 +252,15 @@ $(document).ready(function () {
         });
 
         // Add to Cart
-        $('.btn-black').on('click', function () {
+        // Add to Cart
+        $('.btn-black').off('click').on('click', function () {
+            const product = $(this).data('product');
+            const size = $('.size-btn.active').text();
+
+            if (!product) return;
+
+            Cart.addItem(product, size);
+
             const btn = $(this);
             const originalText = btn.text();
 
@@ -294,6 +302,9 @@ $(document).ready(function () {
         $('#pd-title').text(product.title);
         $('#pd-price').text(`$${product.price.toFixed(2)}`);
         $('#pd-desc').text(product.description); // Description from API
+
+        // Store product data
+        $('.btn-black').data('product', product);
 
         // Hide Size Selector for Backpacks/Accessories
         if (product.title.toLowerCase().includes('backpack') || product.category === 'jewelery') {
@@ -391,11 +402,256 @@ $(document).ready(function () {
     });
 
     // ==========================================================================
+    // Cart Logic
+    // ==========================================================================
+    const Cart = {
+        items: [],
+
+        init: function () {
+            this.load();
+            this.updateBadge();
+            if ($('body').hasClass('page-cart')) {
+                this.renderCartPage();
+            }
+        },
+
+        load: function () {
+            const stored = localStorage.getItem('svo_cart');
+            if (stored) {
+                this.items = JSON.parse(stored);
+            }
+        },
+
+        save: function () {
+            localStorage.setItem('svo_cart', JSON.stringify(this.items));
+            this.updateBadge();
+        },
+
+        addItem: function (product, size) {
+            const existing = this.items.find(item => item.id === product.id && item.size === size);
+
+            if (existing) {
+                existing.quantity += 1;
+            } else {
+                this.items.push({
+                    id: product.id,
+                    title: product.title,
+                    price: product.price,
+                    image: product.image,
+                    size: size,
+                    quantity: 1
+                });
+            }
+
+            this.save();
+        },
+
+        removeItem: function (index) {
+            this.items.splice(index, 1);
+            this.save();
+            this.renderCartPage();
+        },
+
+        changeQty: function (index, delta) {
+            const item = this.items[index];
+            if (!item) return;
+            item.quantity += delta;
+            if (item.quantity < 1) item.quantity = 1;
+            this.save();
+            this.renderCartPage();
+        },
+
+        getTotal: function () {
+            return this.items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+        },
+
+        updateBadge: function () {
+            const totalItems = this.items.reduce((sum, item) => sum + item.quantity, 0);
+            const $badge = $('.cart-badge');
+
+            if (totalItems > 0) {
+                if ($badge.length === 0) {
+                    $('.cart-link').append(`<span class="cart-badge">${totalItems}</span>`);
+                } else {
+                    $badge.text(totalItems);
+                }
+            } else {
+                $badge.remove();
+            }
+        },
+
+        renderCartPage: function () {
+            const $cartItems = $('.cart-items');
+            const $cartSummary = $('.cart-summary');
+
+            $cartItems.empty();
+
+            if (this.items.length === 0) {
+                $cartItems.html(`
+                    <div class="cart-empty-message">
+                        <p>Your cart is empty.</p>
+                        <a href="shop.html" class="btn btn-black" style="margin-top: 1rem; display: inline-block;">Continue Shopping</a>
+                    </div>
+                `);
+                $cartSummary.hide();
+                return;
+            }
+
+            this.items.forEach((item, index) => {
+                $cartItems.append(`
+                    <div class="cart-item" style="display: flex; gap: 1rem; margin-bottom: 2rem; border-bottom: 1px solid #eee; padding-bottom: 1rem;">
+                        <div class="item-image" style="width: 80px; height: 100px; flex-shrink: 0;">
+                            <img src="${item.image}" alt="${item.title}" style="width: 100%; height: 100%; object-fit: contain;">
+                        </div>
+                        <div class="item-details" style="flex-grow: 1;">
+                            <h4 style="font-size: 0.9rem; margin-bottom: 0.25rem;">${item.title}</h4>
+                            <p style="font-size: 0.8rem; color: #666; margin-bottom: 0.5rem;">Size: ${item.size}</p>
+                            <div class="qty-control-group" style="display: flex; align-items: center; gap: 0.5rem; margin-top: 0.5rem;">
+                                <button class="qty-btn" onclick="Cart.changeQty(${index}, -1)" style="width: 24px; height: 24px; border: 1px solid #ddd; background: #fff; cursor: pointer;">-</button>
+                                <span style="font-size: 0.9rem; min-width: 20px; text-align: center;">${item.quantity}</span>
+                                <button class="qty-btn" onclick="Cart.changeQty(${index}, 1)" style="width: 24px; height: 24px; border: 1px solid #ddd; background: #fff; cursor: pointer;">+</button>
+                            </div>
+                        </div>
+                        <div class="item-actions" style="text-align: right;">
+                             <p style="font-size: 0.9rem; font-weight: 500; margin-bottom: 0.5rem;">$${(item.price * item.quantity).toFixed(2)}</p>
+                            <button class="remove-btn" onclick="Cart.removeItem(${index})" style="background: none; border: none; font-size: 1.2rem; cursor: pointer; color: #999;">&times;</button>
+                        </div>
+                    </div>
+                `);
+            });
+
+            // Update Summary
+            const subtotal = this.getTotal();
+            const shippingThreshold = 60;
+            const shippingCost = subtotal > shippingThreshold ? 0 : 4.99;
+            const total = subtotal + shippingCost;
+
+            // Selectors (assuming order of rows in HTML)
+            const $subtotalRow = $('.summary-row').first();
+            const $shippingRow = $('.summary-row').eq(1); // 2nd row is shipping
+            const $totalRow = $('.summary-total');
+
+            // Render Values
+            $subtotalRow.find('span:last-child').text(`$${subtotal.toFixed(2)}`);
+
+            if (shippingCost === 0) {
+                $shippingRow.find('span:last-child').text('Free');
+                // Remove existing progress if any
+                $('.free-shipping-msg').remove();
+                $shippingRow.find('span:last-child').css('color', '#4CAF50'); // Green
+            } else {
+                $shippingRow.find('span:last-child').text(`$${shippingCost.toFixed(2)}`);
+                $shippingRow.find('span:last-child').css('color', ''); // Reset color
+
+                // Add/Update "Add X for free shipping" message
+                const remaining = shippingThreshold - subtotal;
+                let $msg = $('.free-shipping-msg');
+                if ($msg.length === 0) {
+                    $msg = $('<p class="free-shipping-msg" style="font-size: 0.8rem; color: #666; margin-top: 0.5rem; font-style: italic;"></p>');
+                    $shippingRow.after($msg);
+                }
+                $msg.text(`Add $${remaining.toFixed(2)} more for free shipping.`); // Using $ since API is in USD defaults effectively
+            }
+
+            $totalRow.find('span:last-child').text(`$${total.toFixed(2)}`);
+            $cartSummary.show();
+
+            // Link Checkout Button
+            $('.cart-summary .btn-black').off('click').on('click', function () {
+                window.location.href = 'checkout.html';
+            });
+        }
+    };
+
+    // Expose Cart to global
+    window.Cart = Cart;
+
+    // ==========================================================================
+    // Checkout Logic
+    // ==========================================================================
+    const Checkout = {
+        init: function () {
+            if (!$('body').hasClass('page-checkout')) return;
+
+            this.renderSummary();
+
+            $('#checkout-form').on('submit', function (e) {
+                e.preventDefault();
+                const $btn = $('#btn-pay');
+                const originalText = $btn.text();
+
+                $btn.prop('disabled', true).text('Processing...');
+
+                // Simulate API call
+                setTimeout(() => {
+                    window.location.href = 'confirmation.html';
+                }, 2000);
+            });
+        },
+
+        renderSummary: function () {
+            // Ensure Cart is loaded
+            if (Cart.items.length === 0) Cart.load();
+
+            const items = Cart.items;
+            const $container = $('#checkout-items');
+            $container.empty();
+
+            if (items.length === 0) {
+                // If still empty after load, redirect
+                window.location.href = 'shop.html';
+                return;
+            }
+
+            items.forEach(item => {
+                $container.append(`
+                    <div style="display: flex; gap: 1rem; margin-bottom: 1rem; align-items: center;">
+                        <img src="${item.image}" alt="${item.title}" style="width: 50px; height: 60px; object-fit: contain; border: 1px solid #eee;">
+                        <div style="flex-grow: 1;">
+                            <p style="font-size: 0.9rem; font-weight: 500; margin: 0;">${item.title}</p>
+                            <p style="font-size: 0.8rem; color: #666; margin: 0;">Size: ${item.size} x ${item.quantity}</p>
+                        </div>
+                        <span style="font-size: 0.9rem;">$${(item.price * item.quantity).toFixed(2)}</span>
+                    </div>
+                `);
+            });
+
+            // Totals
+            const subtotal = Cart.items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            const shipping = subtotal > 60 ? 0 : 4.99;
+            const total = subtotal + shipping;
+
+            $('#checkout-subtotal').text(`$${subtotal.toFixed(2)}`);
+            $('#checkout-shipping').text(shipping === 0 ? 'Free' : `$${shipping.toFixed(2)}`);
+            $('#checkout-total').text(`$${total.toFixed(2)}`);
+        }
+    };
+
+    // ==========================================================================
+    // Confirmation Logic
+    // ==========================================================================
+    const Confirmation = {
+        init: function () {
+            if (!$('body').hasClass('page-confirmation')) return;
+
+            // Generate Random Order ID
+            const orderId = 'SVO-' + Math.floor(100000 + Math.random() * 900000);
+            $('#order-id').text('#' + orderId);
+
+            // Clear Cart
+            Cart.clear();
+        }
+    };
+
+    // ==========================================================================
     // Initialize
     // ==========================================================================
     fetchProducts();
     initProductDetail();
     initCollection();
+    Cart.init();
+    Checkout.init();
+    Confirmation.init();
 
     console.log('SVO STUDIO loaded successfully');
 });

@@ -1029,6 +1029,98 @@ body.menu-open {
     background: rgba(0, 0, 0, 0.4);
 }
 
+/* ==========================================================================
+   Cart Page
+   ========================================================================== */
+.cart-link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 0.5rem;
+    color: var(--color-gray);
+    position: relative;
+    /* For badge positioning */
+}
+
+.cart-link svg {
+    width: 20px;
+    height: 20px;
+    transition: color var(--transition-fast);
+}
+
+.cart-badge {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background-color: var(--color-black);
+    color: var(--color-white);
+    font-size: 0.6rem;
+    font-weight: 500;
+    min-width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2px;
+}
+
+.cart-link:hover,
+.cart-link.active {
+    color: var(--color-black);
+}
+
+.cart-layout {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: var(--spacing-xl);
+    margin-top: var(--spacing-lg);
+}
+
+.cart-empty-message {
+    text-align: center;
+    padding: var(--spacing-xl) 0;
+    color: var(--color-gray);
+}
+
+.summary-title {
+    font-size: 1.2rem;
+    margin-bottom: var(--spacing-md);
+    padding-bottom: var(--spacing-sm);
+    border-bottom: 1px solid var(--color-beige);
+}
+
+.summary-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: var(--spacing-sm);
+    font-size: 0.9rem;
+    color: var(--color-gray);
+}
+
+.summary-total {
+    display: flex;
+    justify-content: space-between;
+    margin-top: var(--spacing-md);
+    padding-top: var(--spacing-md);
+    border-top: 1px solid var(--color-black);
+    font-weight: 500;
+    font-size: 1.1rem;
+    color: var(--color-black);
+    margin-bottom: var(--spacing-md);
+}
+
+.btn-full {
+    width: 100%;
+}
+
+@media (max-width: 768px) {
+    .cart-layout {
+        grid-template-columns: 1fr;
+        gap: var(--spacing-md);
+    }
+}
+
 .collection-hero-content {
     position: relative;
     z-index: 2;
